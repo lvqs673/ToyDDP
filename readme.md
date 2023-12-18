@@ -39,7 +39,7 @@
 - *model.py*: 模型相关
 - *utils.py*: 用到的一些通用函数
 - *train_sn.py*: 单结点的训练脚本（sn为Single Node）
-- *train_mn.py*: 单结点的训练脚本（mn为Multiple Node）
+- *train_mn.py*: 多结点的训练脚本（mn为Multiple Node）
 
 - *model_sn*: 该目录存储单节点训练的模型
 - *data*: 该目录存储训练的数据和保存的结果
