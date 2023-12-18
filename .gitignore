@@ -1,1 +1,7 @@
-data/*
+data/blood_glucose/*
+data/results.json
+model_sn/*
+model_mn/*
+*.log
+src/__pycache__
+src/z*.py
