@@ -1,15 +1,14 @@
 
+INPUT_SIZE = 1
+INPUT_LEN = 60
+OUTPUT_LEN = 5
 
-INPUT_SIZE = 120
-OUTPUT_SIZE = 12
+MODEL_NAME = "epoch_{}.pt"
 
-MODEL_NAME="epoch_{}.pt"
-
-HIDDEN_SIZE=100
-NUM_LAYERS=2
+HIDDEN_SIZE = 50
+NUM_LAYERS = 2
 
 
-n_epoch_sn=50
-lr_sn=1e-2
-batch_size_sn=64
-
+n_epoch_sn = 50
+lr_sn = 1e-2
+batch_size_sn = 64

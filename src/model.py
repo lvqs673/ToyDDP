@@ -10,7 +10,7 @@ class Model(nn.Module):
         hidden_size=HIDDEN_SIZE,
         num_layers=NUM_LAYERS,
         input_size=INPUT_SIZE,
-        output_size=OUTPUT_SIZE,
+        output_size=OUTPUT_LEN,
     ):
         super().__init__()
         self.hidden_size = hidden_size
@@ -21,9 +21,10 @@ class Model(nn.Module):
         self.dense = nn.Linear(hidden_size * 2, output_size)
 
     def forward(self, x: Tensor) -> Tensor:
+        x = x.unsqueeze(-1)
         out, (h, c) = self.lstm(x)
-        out = self.dense(out)
-        return out
+        h = torch.cat([h[-1], h[-2]], dim=1)
+        return self.dense(h)
 
     def num_parameters(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
@@ -31,6 +32,7 @@ class Model(nn.Module):
 
 if __name__ == "__main__":
     model = Model()
-    xs = torch.randn(3, INPUT_SIZE)
+    print(model.num_parameters())
+    xs = torch.randn(3, INPUT_LEN)
     ys = model.forward(xs)
     print(ys.shape)

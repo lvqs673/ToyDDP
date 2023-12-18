@@ -14,7 +14,7 @@ class GlucoseDataset(Dataset):
         self.data = torch.tensor(data)
 
     def __getitem__(self, i) -> tuple[Tensor, Tensor]:
-        return self.data[i, :INPUT_SIZE], self.data[i, INPUT_SIZE:]
+        return self.data[i, :INPUT_LEN], self.data[i, INPUT_LEN:]
 
     def __len__(self):
         return len(self.data)
@@ -37,7 +37,7 @@ class DatasetBuilder:
 
     def seq2table(self, seq: ndarray) -> None | ndarray:
         n = len(seq)
-        k = INPUT_SIZE+OUTPUT_SIZE
+        k = INPUT_LEN+OUTPUT_LEN
         if k > n:
             return None
         table = np.zeros((n - k + 1, k), dtype=seq.dtype)
