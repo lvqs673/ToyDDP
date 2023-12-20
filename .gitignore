@@ -1,7 +1,10 @@
 data/blood_glucose/*
 data/results.json
+data/*jpg
+*.jpg
 model_sn/*
 model_mn/*
 *.log
 src/__pycache__
 src/z*.py
+stdout*.txt

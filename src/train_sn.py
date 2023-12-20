@@ -18,6 +18,8 @@ class Trainer:
         self,
         trainset: Dataset,
         testset: Dataset,
+        pred_set: Dataset,
+        true_seq: list,
         hidden_size: int = HIDDEN_SIZE,
         model_save_dir: str = "./model_sn",
         model_save_epoch: int = 10,
@@ -30,6 +32,8 @@ class Trainer:
             trainset, batch_size=batch_size_sn, shuffle=True)
         self.test_loader = DataLoader(
             testset, batch_size=batch_size_sn, shuffle=False)
+        self.pred_loader = DataLoader(
+            pred_set, batch_size=batch_size_sn, shuffle=False)
         self.model_save_dir = model_save_dir
         self.model_save_epoch = model_save_epoch
         self.results_save_path = results_save_path
@@ -46,6 +50,8 @@ class Trainer:
             encoding="utf-8",
         )
 
+        self.true_seq = true_seq
+        self.pred_seq = []
         self.train_mse_list, self.train_mae_list = [], []
         self.test_mse_list, self.test_mae_list = [], []
         self.total_time_list = []  # 记录每个epoch训练所消耗的总时间
@@ -82,15 +88,28 @@ class Trainer:
         self.test_mse_list.append(avg_test_mse)
         self.test_mae_list.append(avg_test_mae)
         return avg_test_mse, avg_test_mae
+    
+    def pred(self):
+        self.model.eval()
+        self.pred_seq = []
+        with torch.no_grad():
+            for batch_idx, (inputs, targets) in enumerate(self.pred_loader, 1):
+                outputs = self.model.forward(inputs)
+                self.pred_seq.append(outputs[:,0])
+        self.pred_seq = torch.cat(self.pred_seq, dim=0).tolist()
 
-    # 存储计算的各个指标到
+    # 存储计算的各个指标到results.json中
     def save_results(self):
         results = {}
         if os.path.exists(self.results_save_path):
             results = read_json(self.results_save_path)
         epoch_list = list(range(1, self.n_epoch + 1))
+        id_seq = list(range(1, len(true_seq) + 1))
         # 单结点简记为sn，多结点简记为mn
         new_results = {
+            "id_seq": id_seq,
+            "true_seq": self.true_seq,
+            "sn_pred_seq": self.pred_seq,
             "epoch_list": epoch_list,
             "sn_train_mse_list": self.train_mse_list,
             "sn_train_mae_list": self.train_mae_list,
@@ -124,6 +143,8 @@ class Trainer:
             if epoch % self.model_save_epoch == 0:
                 model_name = MODEL_NAME.format(epoch)
                 self.save_model(model_name)
+
+        self.pred()
         self.save_results()
 
 
@@ -131,11 +152,13 @@ if __name__ == "__main__":
     builder = DatasetBuilder()
     trainset = builder.get_trainset()
     testset = builder.get_testset()
+    pred_set, true_seq = builder.get_kth_dataset(PATIENT_ID)
 
     trainer = Trainer(
         trainset=trainset,
         testset=testset,
-        hidden_size=HIDDEN_SIZE,
+        pred_set=pred_set,
+        true_seq=true_seq
     )
 
     trainer.train()

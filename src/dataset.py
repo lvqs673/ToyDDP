@@ -4,7 +4,7 @@ from numpy import ndarray
 import torch
 import pandas as pd
 from torch import Tensor
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader,Subset
 from config import *
 
 
@@ -23,14 +23,15 @@ class GlucoseDataset(Dataset):
 class DatasetBuilder:
     def __init__(self, data_dir: str = "./data/blood_glucose",
                  train_ratio=0.7):
-        all_tables = []  # 记录每个病人的血糖序列转化为的数据
+        self.all_seqs = []  # 记录每个病人的血糖序列
+        self.all_tables = []  # 记录每个病人的血糖序列转化为的数据
         for filename in os.listdir(data_dir):
             filepath = os.path.join(data_dir, filename)
             seq = pd.read_csv(filepath).iloc[:, 1].to_numpy(dtype=np.float32)
             table = self.seq2table(seq)
-            if table is not None:
-                all_tables.append(table)
-        self.table = np.concatenate(all_tables, axis=0)
+            self.all_seqs.append(seq)
+            self.all_tables.append(table)
+        self.table = np.concatenate(self.all_tables, axis=0)
         train_size = int(len(self.table)*train_ratio)
         self.train_table = self.table[:train_size]
         self.test_table = self.table[train_size:]
@@ -50,6 +51,14 @@ class DatasetBuilder:
 
     def get_testset(self,) -> GlucoseDataset:
         return GlucoseDataset(self.test_table)
+    
+    # 用来对100号患者的血糖序列进行预测
+    def get_kth_dataset(self, k:int, size:int=-1) -> tuple[Dataset, list]:
+        dataset = GlucoseDataset(self.all_tables[k-1])
+        seq = self.all_seqs[k-1][INPUT_LEN:][:-OUTPUT_LEN+1].tolist()
+        if size == -1:
+            size = len(seq)
+        return Subset(dataset, np.arange(size)), seq[:size]
 
 
 if __name__ == "__main__":
@@ -63,3 +72,11 @@ if __name__ == "__main__":
     print("Testset:")
     print(len(testset))
     print(testset[0])
+
+    print()
+    dataset, seq=builder.get_kth_dataset(100)
+    print("100th Dataset:")
+    print(len(dataset))
+    print(len(seq))
+    print(dataset[0])
+    print(seq[:OUTPUT_LEN])
