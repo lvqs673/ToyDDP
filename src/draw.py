@@ -175,3 +175,18 @@ draw_time(
     mn_sync_time=mn_sync_time,
     save_name="TrainingTimeComparison.jpg"
 )
+
+speed_up_ratio = sn_total_time / (mn_cal_time + mn_sync_time)
+
+ndigits = 2   # 保留2位小数
+time_save_name = "TrainingTimeComparison.json"
+time_save_path = os.path.join(IMAGE_DIR, time_save_name)
+
+training_time_comparison = {
+    "sn_total_time": round(sn_total_time, ndigits),
+    "mn_cal_time": round(mn_cal_time, ndigits),
+    "mn_sync_time": round(mn_sync_time, ndigits),
+    "speed_up_ratio": round(speed_up_ratio, ndigits),
+}
+
+write_json(training_time_comparison, time_save_path)
