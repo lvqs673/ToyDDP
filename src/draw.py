@@ -148,9 +148,9 @@ def draw_time(sn_total_time: float, mn_cal_time:float, mn_sync_time: float, save
     bar_width = 0.2
     positions = [0.2, 0.8]
     ax.set_xlim(-0.2, 1.2)
-    sn_bars = ax.bar(positions[0], sn_total_time, bar_width, label='Single Node', color='green')
-    mn_cal_bars = ax.bar(positions[1], mn_cal_time, bar_width, label='Multi Node - Computing', color='green')
-    mn_sync_bars = ax.bar(positions[1], mn_sync_time, bar_width, bottom=mn_cal_time, label='Multi Node - Syncing', color='lightgreen')
+    sn_bars = ax.bar(positions[0], sn_total_time, bar_width, label='Computing', color='green')
+    mn_cal_bars = ax.bar(positions[1], mn_cal_time, bar_width, color='green')
+    mn_sync_bars = ax.bar(positions[1], mn_sync_time, bar_width, bottom=mn_cal_time, label='Syncing', color='lightgreen')
     ax.set_ylabel('Time (Seconds)')
     ax.set_title('Single Node vs Multi Node in Training Times')
     ax.set_xticks(positions)
