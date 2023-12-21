@@ -5,7 +5,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 from model import Model
 from dataset import DatasetBuilder
