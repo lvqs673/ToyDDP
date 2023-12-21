@@ -24,7 +24,7 @@ class Trainer:
         model_save_dir: str = "./model_sn",
         model_save_epoch: int = 10,
         log_path: str = "./train_sn.log",
-        results_save_path: str = "./data/results.json",
+        results_save_path: str = "./data/sn_results.json",
     ):
         self.model = Model(hidden_size=hidden_size)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr_sn)
@@ -53,13 +53,15 @@ class Trainer:
         self.true_seq = true_seq
         self.pred_seq = []
         self.train_mse_list, self.train_mae_list = [], []
+        # train_moment_list记录训练开始后保存MSE和MAE时刻，用于绘制loss-time曲线
+        self.train_moment_list = []
         self.test_mse_list, self.test_mae_list = [], []
         self.total_time_list = []  # 记录每个epoch训练所消耗的总时间
 
+    # 返回训练集中每个样本的MSE和MAE
     def train_epoch(self, epoch: int) -> tuple[float, float]:
         self.model.train()
         train_mse, train_mae = 0.0, 0.0
-        start_time = time.time()
         for batch_idx, (inputs, targets) in enumerate(self.train_loader, 1):
             outputs = self.model.forward(inputs)
             loss = self.cal_MSE(outputs, targets)
@@ -68,13 +70,11 @@ class Trainer:
             self.optimizer.step()
             train_mse += loss.item()
             train_mae += self.cal_MAE(outputs, targets).item()
-        self.total_time_list.append(time.time() - start_time)
         avg_train_mse = train_mse / len(self.train_loader)
         avg_train_mae = train_mae / len(self.train_loader)
-        self.train_mse_list.append(avg_train_mse)
-        self.train_mae_list.append(avg_train_mae)
         return avg_train_mse, avg_train_mae
 
+    # 返回测试集中每个样本的MSE和MAE
     def test_epoch(self, epoch: int) -> tuple[float, float]:
         self.model.eval()
         test_mse, test_mae = 0.0, 0.0
@@ -85,8 +85,6 @@ class Trainer:
                 test_mae += self.cal_MAE(outputs, targets).item()
         avg_test_mse = test_mse / len(self.test_loader)
         avg_test_mae = test_mae / len(self.test_loader)
-        self.test_mse_list.append(avg_test_mse)
-        self.test_mae_list.append(avg_test_mae)
         return avg_test_mse, avg_test_mae
     
     def pred(self):
@@ -100,27 +98,22 @@ class Trainer:
 
     # 存储计算的各个指标到results.json中
     def save_results(self):
-        results = {}
-        if os.path.exists(self.results_save_path):
-            results = read_json(self.results_save_path)
         epoch_list = list(range(1, self.n_epoch + 1))
         id_seq = list(range(1, len(true_seq) + 1))
         # 单结点简记为sn，多结点简记为mn
-        new_results = {
+        results = {
             "id_seq": id_seq,
             "true_seq": self.true_seq,
             "sn_pred_seq": self.pred_seq,
-            "epoch_list": epoch_list,
+            "sn_epoch_list": epoch_list,
             "sn_train_mse_list": self.train_mse_list,
             "sn_train_mae_list": self.train_mae_list,
+            "sn_train_moment_list": self.train_moment_list,
             "sn_test_mse_list": self.test_mse_list,
             "sn_test_mae_list": self.test_mae_list,
             "sn_total_time_list": self.total_time_list,
         }
-        for key, value in results.items():
-            if key not in new_results:
-                new_results[key] = value
-        write_json(new_results, self.results_save_path)
+        write_json(results, self.results_save_path)
 
     def out_message(self, message: str):
         logging.info(message)
@@ -132,8 +125,18 @@ class Trainer:
 
     def train(self):
         for epoch in range(1, self.n_epoch + 1):
+            
+            train_start_time = time.time()
             train_mse, train_mae = self.train_epoch(epoch)
+            train_cost_time = time.time() - train_start_time
+            self.train_mse_list.append(train_mse)
+            self.train_mae_list.append(train_mae)
+            self.total_time_list.append(train_cost_time)
+
             test_mse, test_mae = self.test_epoch(epoch)
+            self.test_mse_list.append(test_mse)
+            self.test_mae_list.append(test_mae)
+
             message = (
                 f"Epoch: {epoch:>2}    TrainMSE: {train_mse:>.4f}   TrainMAE: {train_mae:>.4f}"
                 + f"   TestMSE: {test_mse:>.4f}   TestMAE: {test_mae:>.4f}"
@@ -144,6 +147,7 @@ class Trainer:
                 model_name = MODEL_NAME.format(epoch)
                 self.save_model(model_name)
 
+        self.train_moment_list = np.cumsum(self.total_time_list).tolist()
         self.pred()
         self.save_results()
 

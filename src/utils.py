@@ -3,9 +3,14 @@ import json
 import pickle
 import numpy as np
 import torch
+import torch.nn as nn
 from typing import Sequence
 from torch import Tensor
+from config import *
 
+
+def mean(lst: list):
+    return sum(lst) / len(lst)
 
 def split(n: int, k: int) -> list[int]:
     c, r = divmod(n, k)
@@ -22,33 +27,9 @@ def write_json(obj: object, file_path: str):
         json.dump(obj, f)
 
 
-def read_pkl(file_path: str) -> object:
-    with open(file_path, "rb") as f:
-        return pickle.load(f)
-
-
-def write_pkl(obj: object, file_path: str):
-    with open(file_path, "wb") as f:
-        pickle.dump(obj, f)
-
-
-def read_lines(file_path: str) -> list[str]:
-    lines = []
-    with open(file_path, encoding="utf-8") as f:
-        for line in f:
-            lines.append(line.strip())
-    return lines
-
-
-def write_lines(lines: Sequence, file_path: str):
-    with open(file_path, "w", encoding="utf-8") as f:
-        for line in lines:
-            f.write(line + "\n")
-
-
 # 确保sock刚好接收data_size字节的数据
-def recv_all(sock, data_size:int) -> bytes:
-    data = b''
+def recv_all(sock, data_size: int) -> bytes:
+    data = b""
     while len(data) < data_size:
         packet = sock.recv(data_size - len(data))
         if not packet:
@@ -56,6 +37,44 @@ def recv_all(sock, data_size:int) -> bytes:
         data += packet
     return data
 
+
+# 分割模型梯度为多个指定大小的桶
+def make_buckets(model: nn.Module, bucket_size=BUCKET_SIZE) -> list[list[Tensor]]:
+    buckets = []
+    current_bucket = []
+    current_size = 0
+
+    for param in model.parameters():
+        if param.grad is not None:
+            grad_size = param.grad.data.numel()
+            if current_size + grad_size > bucket_size and current_bucket:
+                buckets.append(current_bucket)
+                current_bucket = []
+                current_size = 0
+
+            current_bucket.append(param.grad)
+            current_size += grad_size
+
+    if current_bucket:
+        buckets.append(current_bucket)
+
+    return buckets
+
+
+# 用buckets中的梯度修改模型梯度
+def change_grad(model: nn.Module, buckets: list[list[Tensor]]):
+    bucket_idx = 0  # 当前桶的索引
+    grad_idx = 0  # 当前桶内梯度的索引
+
+    for param in model.parameters():
+        if param.grad is not None:
+            param.grad = buckets[bucket_idx][grad_idx]
+            grad_idx += 1
+
+            # 如果当前桶内的梯度已经用完，移动到下一个桶
+            if grad_idx >= len(buckets[bucket_idx]):
+                bucket_idx += 1
+                grad_idx = 0
 
 
 # 将bucket中的每个tensor展平（原地操作）
@@ -70,6 +89,7 @@ def flatten(buckets: list[list[Tensor]]) -> list[list[Tensor]]:
             bucket[i] = _tensor.view(-1)
         shapes_by_bucket.append(shapes)
     return shapes_by_bucket
+
 
 # 将buckets按tensor的shape恢复到原来的tensor
 def unflatten(buckets: list[list[Tensor]], shapes_by_bucket: list[list[Tensor]]):
@@ -86,10 +106,8 @@ def unflatten(buckets: list[list[Tensor]], shapes_by_bucket: list[list[Tensor]])
 def split_buckets(
     buckets: list[list[Tensor]], num_parts: int
 ) -> tuple[list[list[list[Tensor]]], list[list[list[int]]]]:
-    buckets_by_part = [[[]
-                        for _ in range(len(buckets))] for _ in range(num_parts)]
-    pre_tensor_id = [[[] for _ in range(len(buckets))]
-                     for _ in range(num_parts)]
+    buckets_by_part = [[[] for _ in range(len(buckets))] for _ in range(num_parts)]
+    pre_tensor_id = [[[] for _ in range(len(buckets))] for _ in range(num_parts)]
     for bucket_id, bucket in enumerate(buckets):
         n_total_params = sum(tensor.numel() for tensor in bucket)
         max_size_by_part = split(n_total_params, num_parts)
@@ -103,8 +121,7 @@ def split_buckets(
             while _tensor_id < len(bucket) and cur_part_size < max_part_size:
                 tensor = bucket[_tensor_id]
                 # n_valid_size表示实际可以分给当前部分的tensor元素个数，为了应对tensor在内部分割给两个部分的情况
-                n_valid_size = min(
-                    tensor.numel(), max_part_size - cur_part_size)
+                n_valid_size = min(tensor.numel(), max_part_size - cur_part_size)
                 tensors.append(tensor[:n_valid_size])
                 _tensor_ids.append(_tensor_id)
                 cur_part_size += n_valid_size
