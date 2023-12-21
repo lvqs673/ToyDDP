@@ -57,7 +57,7 @@
 - $H_2$:  20 21 22
 
 
-*reduce-scatter过程*
+**reduce-scatter过程**
 
 0(2) $\rightarrow$ 1 ：表示 $H_0$ 将它的第2块数据（也就是02）发给 $H_1$ \
 0(1) $\leftarrow$ 2 ：表示 $H_0$ 接收来自 $H_2$ 的数据并覆盖或累加到自己的第1块数据上（也就是01）
@@ -76,7 +76,7 @@
 - $H_1$: 00+10    &nbsp; 11       &nbsp; 02+12+22
 - $H_2$: 00+10+20 &nbsp; 11+21    &nbsp; 22
 
-*allgather过程*
+**allgather过程**
 
 第一轮：\
 0(1) $\rightarrow$ 1  &nbsp;  1(2) $\rightarrow$ 2  &nbsp;  2(0) $\rightarrow$ 0  \
