@@ -59,17 +59,17 @@
 
 *reduce-scatter过程*
 
-0(2) $\rightarrow$ 1 ：表示$H_0$将它的第2块数据（也就是02）发给$H_1$ \
-0(1) $\leftarrow$ 2 ：表示$H_0$接收来自$H_2$的数据并覆盖或累加到自己的第1块数据上（也就是01）
+0(2) $\rightarrow$ 1 ：表示 $H_0$ 将它的第2块数据（也就是02）发给 $H_1$ \
+0(1) $\leftarrow$ 2 ：表示 $H_0$ 接收来自 $H_2$ 的数据并覆盖或累加到自己的第1块数据上（也就是01）
 
-第一轮：
+第一轮：\
 0(0) $\rightarrow$ 1  &nbsp;  1(1) $\rightarrow$ 2  &nbsp;  2(2) $\rightarrow$ 0  \
 0(2) $\leftarrow$ 2  &nbsp;  1(0) $\leftarrow$ 0  &nbsp;  2(1) $\leftarrow$ 1 
 - $H_0$: 00     &nbsp; 01     &nbsp; 02+22
 - $H_1$: 00+10  &nbsp; 11     &nbsp; 12
 - $H_2$: 20     &nbsp; 11+21  &nbsp; 22
 
-第二轮：
+第二轮：\
 0(2) $\rightarrow$ 1  &nbsp;  1(0) $\rightarrow$ 2  &nbsp;  2(1) $\rightarrow$ 0  \
 0(1) $\leftarrow$ 2  &nbsp;  1(2) $\leftarrow$ 0  &nbsp;  2(0) $\leftarrow$ 1 
 - $H_0$: 00       &nbsp; 01+11+21 &nbsp; 02+22
@@ -85,7 +85,7 @@
 - $H_1$: 00+10    &nbsp; 01+11+21 &nbsp; 02+12+22
 - $H_2$: 00+10+20 &nbsp; 11+21    &nbsp; 02+12+22
 
-第二轮：
+第二轮：\
 0(0) $\rightarrow$ 1  &nbsp;  1(1) $\rightarrow$ 2  &nbsp;  2(2) $\rightarrow$ 0 \
 0(2) $\leftarrow$ 2  &nbsp;  1(0) $\leftarrow$ 0  &nbsp;  2(1) $\leftarrow$ 1
 - $H_0$: 00+10+20 &nbsp; 01+11+21 &nbsp; 02+12+22
