@@ -4,6 +4,7 @@ import logging
 import numpy as np
 import torch
 import torch.nn as nn
+from torch.nn.utils.clip_grad import clip_grad_norm_
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from model import Model
@@ -66,6 +67,7 @@ class Trainer:
             loss = self.cal_MSE(outputs, targets)
             self.optimizer.zero_grad()
             loss.backward()
+            clip_grad_norm_(self.model.parameters(), max_norm=1.0)
             self.optimizer.step()
             train_mse += loss.item()
             train_mae += self.cal_MAE(outputs, targets).item()

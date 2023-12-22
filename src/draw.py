@@ -28,7 +28,7 @@ def draw2(
     x: list, y1: list, y2: list, x2: list=None,
     x_label: str = None, y_label: str = None,
     y1_name: str = None, y2_name: str = None,
-    title: str = None, save_name: str = None, marker=True,
+    title: str = None, save_name: str = None, marker=False,
 ):
     plt.figure(figsize=(10, 6))
     x2 = x if x2 is None else x2
@@ -81,15 +81,17 @@ draw2(
     title="TestLoss-Epoch",
     save_name="TestLoss-Epoch.jpg",
 )
-# 训练集Loss-Time曲线
+# 训练集Loss-Time曲线（时间用小时）
+def list_div(lst: list[float], k=3600):
+    return [item/k for item in lst]
 draw2(
-    x=sn_results["sn_train_moment_list"],
-    x2=mn_results["mn_train_moment_list"],
+    x=list_div(sn_results["sn_train_moment_list"], 3600),
+    x2=list_div(mn_results["mn_train_moment_list"], 3600),
     y1=sn_results["sn_train_mae_list"],
     y2=mn_results["mn_train_mae_list"],
     y1_name="sn_train_mae",
     y2_name="mn_train_mae",
-    x_label="Time (second)",
+    x_label="Time (hour)",
     y_label="MAELoss",
     title="TrainLoss-Time",
     save_name="TrainLoss-Time.jpg",
@@ -132,7 +134,7 @@ draw3(
     y1=mn_results["true_seq"][:NUM_PREDICTION_POINTS],
     y2=sn_results["sn_pred_seq"][:NUM_PREDICTION_POINTS],
     y3=mn_results["mn_pred_seq"][:NUM_PREDICTION_POINTS],
-    x_label="CheckPointId",
+    x_label="Check Point Id",
     y_label="Glucose (mmol/L)",
     y1_name="true_seq",
     y2_name="sn_pred_seq",
