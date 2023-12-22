@@ -18,6 +18,9 @@ from utils import *
 第100个患者的真实曲线、单结点模型预测曲线、多结点模型预测曲线
 5. 单结点训练每个Epoch训练时长、多结点Master Node每个Epoch计算时长+同步时长
 
+json文件
+6. 存储了单结点在训练时每个epoch的耗时、多结点在训练时每个epoch的计算和同步耗时以及多结点训练的加速比
+
 """
 
 
@@ -91,7 +94,7 @@ draw2(
     y2=mn_results["mn_train_mae_list"],
     y1_name="sn_train_mae",
     y2_name="mn_train_mae",
-    x_label="Time (hour)",
+    x_label="Time (Hour)",
     y_label="MAELoss",
     title="TrainLoss-Time",
     save_name="TrainLoss-Time.jpg",
@@ -153,7 +156,7 @@ def draw_time(sn_total_time: float, mn_cal_time:float, mn_sync_time: float, save
     sn_bars = ax.bar(positions[0], sn_total_time, bar_width, label='Computing', color='green')
     mn_cal_bars = ax.bar(positions[1], mn_cal_time, bar_width, color='green')
     mn_sync_bars = ax.bar(positions[1], mn_sync_time, bar_width, bottom=mn_cal_time, label='Syncing', color='lightgreen')
-    ax.set_ylabel('Time (Seconds)')
+    ax.set_ylabel('Time (Second)')
     ax.set_title('Single Node vs Multi Node in Training Times')
     ax.set_xticks(positions)
     ax.set_xticklabels(['Single Node', 'Multi Node'])

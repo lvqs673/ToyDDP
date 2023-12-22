@@ -22,8 +22,7 @@ allreduce的实现通过发送线程和接收线程实现而不是reducescatter+
 
 # 环形结构的通信，每个结点只会把数据发送给右边结点并从左边结点接收数据
 class Communicator:
-    def __init__(self, rank: int = RANK, seed: int = 42, sync_flag: bytes = SYNC_FLAG):
-        self.seed = seed
+    def __init__(self, rank: int = RANK, sync_flag: bytes = SYNC_FLAG):
         self.sync_flag = sync_flag
         self.n_hosts = len(HOSTS)
         # buckets_by_part[i][j]表示第j个bucket的第i个part的所有tensor
@@ -179,8 +178,8 @@ class Communicator:
         return buckets
 
     # 实现对数据的分布式采样，返回值是当前Node的数据
-    def sample_data(self, dataset: Dataset):
-        generator = torch.Generator().manual_seed(self.seed)
+    def sample_data(self, dataset: Dataset, seed=42):
+        generator = torch.Generator().manual_seed(seed)
         indices = torch.randperm(len(dataset), generator=generator)
         split_parts_size = split(len(indices), self.n_hosts)
         split_parts_size.reverse()  # 让第一个结点分配更少的数据
