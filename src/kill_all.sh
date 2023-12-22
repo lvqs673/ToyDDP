@@ -14,7 +14,7 @@ for ((RANK=0;RANK<${#HOSTS[@]};RANK++))
 do
     ( 
         HOST=${HOSTS[$RANK]} ; \
-        ssh $USER@$HOST "pkill -f python.*src.*py$"
+        ssh $USER@$HOST "pkill -f python.*src/train_mn.py$"
     )&
 done
 
