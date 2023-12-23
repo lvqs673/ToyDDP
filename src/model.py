@@ -29,10 +29,22 @@ class Model(nn.Module):
     def num_parameters(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
+    
 
 if __name__ == "__main__":
+    import os
+    torch.manual_seed(42)
     model = Model()
+
+    # 如果不存在模型，那就创建
+    if not os.path.exists(INITIAL_MODEL_PATH):
+        torch.save(model.state_dict(), INITIAL_MODEL_PATH)
+    else:
+        model.load_state_dict(torch.load(INITIAL_MODEL_PATH))
+    
     print(model.num_parameters())
     xs = torch.randn(3, INPUT_LEN)
     ys = model.forward(xs)
     print(ys.shape)
+    print()
+    print(ys.sum())

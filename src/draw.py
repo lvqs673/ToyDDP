@@ -32,7 +32,7 @@ def draw2(
     x: list, y1: list, y2: list, x2: list=None,
     x_label: str = None, y_label: str = None,
     y1_name: str = None, y2_name: str = None,
-    title: str = None, save_name: str = None, marker=False,
+    title: str = None, save_name: str = None, marker=False, truncate_x = False,
 ):
     plt.figure(figsize=(10, 6))
     x2 = x if x2 is None else x2
@@ -48,6 +48,8 @@ def draw2(
         plt.xlabel(x_label, fontsize=12)
     if y_label:
         plt.ylabel(y_label, fontsize=12)
+    if truncate_x:
+        plt.xlim(right=min(x[-1], x2[-1]))
     plt.grid(True, linestyle="--", alpha=0.5)
     if y1_name or y2_name:
         plt.legend(loc="best", fontsize=10)
@@ -99,6 +101,7 @@ draw2(
     y_label="MAELoss",
     title="TrainLoss-Time",
     save_name="TrainLoss-Time.jpg",
+    truncate_x = True,
 )
 
 
@@ -131,6 +134,7 @@ def draw3(
     if save_name:
         save_path = os.path.join(IMAGE_DIR, save_name)
         plt.savefig(save_path)
+    plt.clf()
 
 # 第100个患者的血糖预测曲线
 draw3(
@@ -149,22 +153,6 @@ draw3(
 )
 
 
-def draw_time(sn_total_time: float, mn_cal_time:float, mn_sync_time: float, save_name: str=None):
-    fig, ax = plt.subplots(figsize=(6, 5))
-    bar_width = 0.2
-    positions = [0.2, 0.8]
-    ax.set_xlim(-0.2, 1.2)
-    sn_bars = ax.bar(positions[0], sn_total_time, bar_width, label='Computing', color='green')
-    mn_cal_bars = ax.bar(positions[1], mn_cal_time, bar_width, color='green')
-    mn_sync_bars = ax.bar(positions[1], mn_sync_time, bar_width, bottom=mn_cal_time, label='Syncing', color='lightgreen')
-    ax.set_ylabel('Time (Second)')
-    ax.set_title('Single Node vs Multi Node in Training Times')
-    ax.set_xticks(positions)
-    ax.set_xticklabels(['Single Node', 'Multi Node'])
-    ax.legend()
-    if save_name:
-        save_path = os.path.join(IMAGE_DIR, save_name)
-        plt.savefig(save_path)
 
 
 # sn_total_time为单结点训练时每个epoch的总时长
@@ -175,12 +163,28 @@ sn_total_time =mean(sn_results["sn_total_time_list"])
 mn_cal_time = mean(mn_results["mn_cal_time_list"])
 mn_sync_time = mean(mn_results["mn_sync_time_list"])
 
-draw_time(
-    sn_total_time=sn_total_time,
-    mn_cal_time=mn_sync_time,
-    mn_sync_time=mn_sync_time,
-    save_name="TrainingTimeComparison.jpg"
-)
+def draw_time():
+    save_name = "TrainingTimeComparison.jpg"
+    bar_width = 0.2
+    positions = [0.2, 0.8]
+    plt.figure(figsize=(6,5))
+    plt.xlim(-0.2,1.2)
+
+    plt.bar(positions[0], sn_total_time, bar_width, label='Computing', color='green')
+    plt.bar(positions[1], mn_cal_time, bar_width, color='green')
+    plt.bar(positions[1], mn_sync_time, bar_width, bottom=mn_cal_time, label='Syncing', color='lightgreen')
+
+    plt.ylabel('Time (Second)')
+    plt.title('Single Node vs Multi Node in Training Times')
+    plt.xticks(positions, ['Single Node', 'Multi Node'])
+    plt.legend()
+
+    if save_name:
+        save_path = os.path.join(IMAGE_DIR, save_name)
+        plt.savefig(save_path)
+    plt.clf()
+draw_time()
+
 
 def draw_sync_time(
     epoch_list: list[int],
@@ -201,6 +205,7 @@ def draw_sync_time(
     if save_name:
         save_path = os.path.join(IMAGE_DIR, save_name)
         plt.savefig(save_path)
+    plt.clf()
 
 draw_sync_time(
     epoch_list=mn_results["mn_epoch_list"],

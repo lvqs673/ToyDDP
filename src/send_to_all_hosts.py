@@ -15,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 dest_project_dir = "/data/lvqs/ToyDDP/"
 dest_data_dir = os.path.join(dest_project_dir, "data")
 dest_glucose_dir = os.path.join(dest_data_dir, "blood_glucose")
+dest_initial_model_file = os.path.join(dest_data_dir, "initial_model.pt")
 dest_src_dir = os.path.join(dest_project_dir, "src")
 dest_config_file = os.path.join(dest_src_dir, "config.py")
 
@@ -31,6 +32,7 @@ def send_file(args: tuple[int, str]):
     os.system(f"ssh {USER}@{host} 'mkdir -p {dest_src_dir}'")
 
     os.system(f"rsync -az {glucose_dir} {USER}@{host}:{dest_glucose_dir}")
+    os.system(f"rsync -az {INITIAL_MODEL_PATH} {USER}@{host}:{dest_initial_model_file}")
     exclude_files = ["__pycache__"]   # 不发送python缓存
     exclude_options = " ".join([f"--exclude={file}" for file in exclude_files])
     os.system(f"rsync -az {exclude_options} {src_dir} {USER}@{host}:{dest_src_dir}")

@@ -31,6 +31,7 @@ class Trainer:
         self.communicator = communicator
         self.is_master = RANK == 0
         self.model = Model(hidden_size=hidden_size)
+        self.model.load_state_dict(torch.load(INITIAL_MODEL_PATH))
         self.optimizer = optim.AdamW(
             self.model.parameters(), lr=lr_mn, weight_decay=weight_decay_mn)
         # 对训练数据进行分布式采样，让每个结点训练的数据不同

@@ -6,7 +6,7 @@
 
 (
     bash ./src/train_mn.sh;
-    echo Multi Node Training is finished.
+    echo Multi-Node-Training is finished.
 ) 
 
 wait

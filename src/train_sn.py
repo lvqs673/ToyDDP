@@ -27,6 +27,7 @@ class Trainer:
         results_save_path: str = "./data/sn_results.json",
     ):
         self.model = Model(hidden_size=hidden_size)
+        self.model.load_state_dict(torch.load(INITIAL_MODEL_PATH))
         self.optimizer = optim.AdamW(
             self.model.parameters(), lr=lr_sn, weight_decay=weight_decay_sn)
         self.train_loader = DataLoader(

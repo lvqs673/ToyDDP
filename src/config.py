@@ -13,6 +13,7 @@ PATIENT_ID = 100   # 绘制曲线的病人ID
 NUM_PREDICTION_POINTS = 300
 
 IMAGE_DIR = "./image"
+INITIAL_MODEL_PATH = "./data/initial_model.pt"
 MODEL_NAME = "epoch_{}.pt"
 
 HIDDEN_SIZE = 200
