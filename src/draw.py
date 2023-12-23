@@ -17,6 +17,7 @@ from utils import *
 4. 预测曲线
 第100个患者的真实曲线、单结点模型预测曲线、多结点模型预测曲线
 5. 单结点训练每个Epoch训练时长、多结点Master Node每个Epoch计算时长+同步时长
+6. 多结点训练时每个Epoch同步时间绘制成柱状图 SyncTime-Epoch
 
 json文件
 6. 存储了单结点在训练时每个epoch的耗时、多结点在训练时每个epoch的计算和同步耗时以及多结点训练的加速比
@@ -181,6 +182,36 @@ draw_time(
     save_name="TrainingTimeComparison.jpg"
 )
 
+def draw_sync_time(
+    epoch_list: list[int],
+    mn_sync_time_list: list[float],
+    xlabel: str = None,
+    ylabel: str = None,
+    title: str = None,
+    save_name: str = None,
+):
+    plt.figure(figsize=(10, 6))
+    plt.bar(epoch_list, mn_sync_time_list, color="green")
+    if xlabel:
+        plt.xlabel(xlabel)
+    if ylabel:
+        plt.ylabel(ylabel)
+    if title:
+        plt.title(title)
+    if save_name:
+        save_path = os.path.join(IMAGE_DIR, save_name)
+        plt.savefig(save_path)
+
+draw_sync_time(
+    epoch_list=mn_results["mn_epoch_list"],
+    mn_sync_time_list=mn_results["mn_sync_time_list"],
+    xlabel="Epoch",
+    ylabel="SyncTime (Second)",
+    title="SyncTime-Epoch",
+    save_name="SyncTime-Epoch.jpg",
+)
+
+
 speed_up_ratio = sn_total_time / (mn_cal_time + mn_sync_time)
 
 ndigits = 2   # 保留2位小数
@@ -195,3 +226,5 @@ training_time_comparison = {
 }
 
 write_json(training_time_comparison, time_save_path)
+
+

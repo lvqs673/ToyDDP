@@ -27,7 +27,8 @@ class Trainer:
         results_save_path: str = "./data/sn_results.json",
     ):
         self.model = Model(hidden_size=hidden_size)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=lr_sn)
+        self.optimizer = optim.AdamW(
+            self.model.parameters(), lr=lr_sn, weight_decay=weight_decay_sn)
         self.train_loader = DataLoader(
             trainset, batch_size=batch_size_sn, shuffle=True)
         self.test_loader = DataLoader(

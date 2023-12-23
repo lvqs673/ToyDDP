@@ -19,12 +19,14 @@ HIDDEN_SIZE = 200
 NUM_LAYERS = 2
 
 
-n_epoch_sn = 200
-lr_sn = 5e-3
+n_epoch_sn = 100
+lr_sn = 2e-3
+weight_decay_sn = 1e-4
 batch_size_sn = 5120
 
-n_epoch_mn = 200
-lr_mn = 5e-3
+n_epoch_mn = 100
+lr_mn = 2e-3
+weight_decay_mn = 1e-4
 batch_size_mn = 5120
 
 BUCKET_SIZE = int(5e6)
