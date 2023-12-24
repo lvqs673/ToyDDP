@@ -12,6 +12,9 @@ from config import *
 def mean(lst: list):
     return sum(lst) / len(lst)
 
+def list_log(lst: list):
+    return np.log(np.array(lst)).tolist()
+
 def split(n: int, k: int) -> list[int]:
     c, r = divmod(n, k)
     return [c + (i < r) for i in range(k)]

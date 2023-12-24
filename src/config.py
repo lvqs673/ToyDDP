@@ -23,11 +23,15 @@ NUM_LAYERS = 2
 n_epoch_sn = 100
 lr_sn = 2e-3
 weight_decay_sn = 1e-4
+step_size_sn = 30
+gamma_sn = 0.6
 batch_size_sn = 5120
 
 n_epoch_mn = 100
 lr_mn = 2e-3
 weight_decay_mn = 1e-4
+step_size_mn = 30
+gamma_mn = 0.6
 batch_size_mn = 5120
 
 BUCKET_SIZE = int(5e6)

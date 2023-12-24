@@ -66,24 +66,24 @@ mn_results = read_json("./data/mn_results.json")
 # 训练集Loss-Epoch曲线
 draw2(
     x=mn_results["mn_epoch_list"],
-    y1=sn_results["sn_train_mae_list"],
-    y2=mn_results["mn_train_mae_list"],
+    y1=list_log(sn_results["sn_train_mae_list"]),
+    y2=list_log(mn_results["mn_train_mae_list"]),
     y1_name="sn_train_mae",
     y2_name="mn_train_mae",
     x_label="Epoch",
-    y_label="MAELoss",
+    y_label="Log MAELoss",
     title="TrainLoss-Epoch",
     save_name="TrainLoss-Epoch.jpg",
 )
 #  测试集Loss-Epoch曲线
 draw2(
     x=mn_results["mn_epoch_list"],
-    y1=sn_results["sn_test_mae_list"],
-    y2=mn_results["mn_test_mae_list"],
+    y1=list_log(sn_results["sn_test_mae_list"]),
+    y2=list_log(mn_results["mn_test_mae_list"]),
     y1_name="sn_test_mae",
     y2_name="mn_test_mae",
     x_label="Epoch",
-    y_label="MAELoss",
+    y_label="Log MAELoss",
     title="TestLoss-Epoch",
     save_name="TestLoss-Epoch.jpg",
 )
@@ -93,12 +93,12 @@ def list_div(lst: list[float], k=3600):
 draw2(
     x=list_div(sn_results["sn_train_moment_list"], 3600),
     x2=list_div(mn_results["mn_train_moment_list"], 3600),
-    y1=sn_results["sn_train_mae_list"],
-    y2=mn_results["mn_train_mae_list"],
+    y1=list_log(sn_results["sn_train_mae_list"]),
+    y2=list_log(mn_results["mn_train_mae_list"]),
     y1_name="sn_train_mae",
     y2_name="mn_train_mae",
     x_label="Time (Hour)",
-    y_label="MAELoss",
+    y_label="Log MAELoss",
     title="TrainLoss-Time",
     save_name="TrainLoss-Time.jpg",
     truncate_x = True,

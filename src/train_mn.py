@@ -34,6 +34,19 @@ class Trainer:
         self.model.load_state_dict(torch.load(INITIAL_MODEL_PATH))
         self.optimizer = optim.AdamW(
             self.model.parameters(), lr=lr_mn, weight_decay=weight_decay_mn)
+        weight_params, bias_params = [], []
+        for name, param in self.model.named_parameters():
+            if 'bias' in name:
+                bias_params.append(param)
+            else:
+                weight_params.append(param)
+        param_groups = [
+            {'params': weight_params, 'weight_decay': weight_decay_mn},
+            {'params': bias_params, 'weight_decay': 0.0}
+        ]
+        self.optimizer = optim.AdamW(param_groups, lr=lr_mn)
+        self.scheduler = optim.lr_scheduler.StepLR(
+            self.optimizer, step_size=step_size_mn, gamma=gamma_mn)
         # 对训练数据进行分布式采样，让每个结点训练的数据不同
         trainset = self.communicator.sample_data(trainset)
         self.train_loader = DataLoader(
@@ -94,6 +107,7 @@ class Trainer:
 
             start_cal_time = time.time()
             self.optimizer.step()
+            self.scheduler.step()
             cal_time += time.time() - start_cal_time
 
             train_mse += loss.item()

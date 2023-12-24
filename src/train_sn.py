@@ -28,8 +28,19 @@ class Trainer:
     ):
         self.model = Model(hidden_size=hidden_size)
         self.model.load_state_dict(torch.load(INITIAL_MODEL_PATH))
-        self.optimizer = optim.AdamW(
-            self.model.parameters(), lr=lr_sn, weight_decay=weight_decay_sn)
+        weight_params, bias_params = [], []
+        for name, param in self.model.named_parameters():
+            if 'bias' in name:
+                bias_params.append(param)
+            else:
+                weight_params.append(param)
+        param_groups = [
+            {'params': weight_params, 'weight_decay': weight_decay_sn},
+            {'params': bias_params, 'weight_decay': 0.0}
+        ]
+        self.optimizer = optim.AdamW(param_groups, lr=lr_sn)
+        self.scheduler = optim.lr_scheduler.StepLR(
+            self.optimizer, step_size=step_size_mn, gamma=gamma_mn)
         self.train_loader = DataLoader(
             trainset, batch_size=batch_size_sn, shuffle=True)
         self.test_loader = DataLoader(
@@ -71,6 +82,7 @@ class Trainer:
             loss.backward()
             clip_grad_norm_(self.model.parameters(), max_norm=1.0)
             self.optimizer.step()
+            self.scheduler.step()
             train_mse += loss.item()
             train_mae += self.cal_MAE(outputs, targets).item()
         avg_train_mse = train_mse / len(self.train_loader)
