@@ -173,6 +173,11 @@ class Communicator:
         buckets = merge_buckets(self.buckets_by_part, pre_tensor_id)
         unflatten(buckets, shapes_by_bucket)
 
+        # 平均聚合后的值
+        for i in range(len(buckets)):
+            for j in range(len(buckets[i])):
+                buckets[i][j] = buckets[i][j] / self.n_hosts
+
         self.counter += 1
 
         return buckets

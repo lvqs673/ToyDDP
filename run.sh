@@ -1,15 +1,12 @@
 
-(
-    bash ./src/train_sn.sh;
-    echo Single-Node-Training is finished.
-) &
+# 串行执行单/多结点
+bash ./src/train_mn.sh
+bash ./src/train_sn.sh
 
-(
-    bash ./src/train_mn.sh;
-    echo Multi-Node-Training is finished.
-) &
+# # 并行执行单/多结点
+# bash ./src/train_sn.sh &
+# bash ./src/train_mn.sh &
 
 wait
-
 python ./src/draw.py
 

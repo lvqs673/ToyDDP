@@ -24,8 +24,10 @@ do
     ( 
         HOST=${HOSTS[$RANK]} ; \
         ACTIVATE_PATH=${ACTIVATE_PATHS[$RANK]} ; \
+
         ssh $USER@$HOST "source $ACTIVATE_PATH base && cd $target_dir && \
             python -u $src_file" > "stdout_$RANK"_"$HOST.txt" 2>&1 
+
         # ssh $USER@$HOST "source $ACTIVATE_PATH base && python -V"
     ) &
 done

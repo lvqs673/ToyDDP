@@ -18,5 +18,6 @@ do
     )&
 done
 
+pkill -f python.*src/train_sn.py$
 
 wait

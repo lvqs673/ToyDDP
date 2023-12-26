@@ -1,11 +1,12 @@
 data/blood_glucose/*
 data/*results*.json
 data/*jpg
+data/*.pt
 *.jpg
 model_mn/*
 model_sn/*
 image*
 *.log
 src/__pycache__
-src/z*.py
+src/z*
 stdout*.txt

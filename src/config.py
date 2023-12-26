@@ -19,19 +19,18 @@ MODEL_NAME = "epoch_{}.pt"
 HIDDEN_SIZE = 200
 NUM_LAYERS = 2
 
+DRAW_EPOCH = 50
 
-n_epoch_sn = 100
-lr_sn = 2e-3
-weight_decay_sn = 1e-4
-step_size_sn = 30
-gamma_sn = 0.6
-batch_size_sn = 5120
+n_epoch_sn = 50
+lr_sn = 1e-2
+lr_step_size_sn = 10
+lr_gamma_sn = 0.7
+batch_size_sn = 3072
 
-n_epoch_mn = 100
-lr_mn = 2e-3
-weight_decay_mn = 1e-4
-step_size_mn = 30
-gamma_mn = 0.6
-batch_size_mn = 5120
+n_epoch_mn = 50
+lr_mn = 1e-2
+lr_step_size_mn = 10
+lr_gamma_mn = 0.7
+batch_size_mn = 1024
 
 BUCKET_SIZE = int(5e6)

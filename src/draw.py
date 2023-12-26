@@ -65,40 +65,49 @@ mn_results = read_json("./data/mn_results.json")
 
 # 训练集Loss-Epoch曲线
 draw2(
-    x=mn_results["mn_epoch_list"],
-    y1=list_log(sn_results["sn_train_mae_list"]),
-    y2=list_log(mn_results["mn_train_mae_list"]),
+    x=mn_results["mn_epoch_list"][:DRAW_EPOCH],
+    y1=sn_results["sn_train_mae_list"][:DRAW_EPOCH],
+    y2=mn_results["mn_train_mae_list"][:DRAW_EPOCH],
+    # y1=list_log(sn_results["sn_train_mae_list"])[:DRAW_EPOCH],
+    # y2=list_log(mn_results["mn_train_mae_list"])[:DRAW_EPOCH],
     y1_name="sn_train_mae",
     y2_name="mn_train_mae",
     x_label="Epoch",
-    y_label="Log MAELoss",
+    y_label="MAELoss",
+    # y_label="Log MAELoss",
     title="TrainLoss-Epoch",
     save_name="TrainLoss-Epoch.jpg",
 )
 #  测试集Loss-Epoch曲线
 draw2(
-    x=mn_results["mn_epoch_list"],
-    y1=list_log(sn_results["sn_test_mae_list"]),
-    y2=list_log(mn_results["mn_test_mae_list"]),
+    x=mn_results["mn_epoch_list"][:DRAW_EPOCH],
+    y1=sn_results["sn_test_mae_list"][:DRAW_EPOCH],
+    y2=mn_results["mn_test_mae_list"][:DRAW_EPOCH],
+    # y1=list_log(sn_results["sn_test_mae_list"])[:DRAW_EPOCH],
+    # y2=list_log(mn_results["mn_test_mae_list"])[:DRAW_EPOCH],
     y1_name="sn_test_mae",
     y2_name="mn_test_mae",
     x_label="Epoch",
-    y_label="Log MAELoss",
+    # y_label="Log MAELoss",
+    y_label="MAELoss",
     title="TestLoss-Epoch",
     save_name="TestLoss-Epoch.jpg",
 )
-# 训练集Loss-Time曲线（时间用小时）
-def list_div(lst: list[float], k=3600):
+# 训练集Loss-Time曲线（时间用分钟）
+def list_div(lst: list[float], k=60):
     return [item/k for item in lst]
 draw2(
-    x=list_div(sn_results["sn_train_moment_list"], 3600),
-    x2=list_div(mn_results["mn_train_moment_list"], 3600),
-    y1=list_log(sn_results["sn_train_mae_list"]),
-    y2=list_log(mn_results["mn_train_mae_list"]),
+    x=list_div(sn_results["sn_train_moment_list"], 60)[:DRAW_EPOCH],
+    x2=list_div(mn_results["mn_train_moment_list"], 60)[:DRAW_EPOCH],
+    y1=sn_results["sn_train_mae_list"][:DRAW_EPOCH],
+    y2=mn_results["mn_train_mae_list"][:DRAW_EPOCH],
+    # y1=list_log(sn_results["sn_train_mae_list"])[:DRAW_EPOCH],
+    # y2=list_log(mn_results["mn_train_mae_list"])[:DRAW_EPOCH],
     y1_name="sn_train_mae",
     y2_name="mn_train_mae",
-    x_label="Time (Hour)",
-    y_label="Log MAELoss",
+    x_label="Time (Minute)",
+    # y_label="Log MAELoss",
+    y_label="MAELoss",
     title="TrainLoss-Time",
     save_name="TrainLoss-Time.jpg",
     truncate_x = True,
@@ -156,12 +165,12 @@ draw3(
 
 
 # sn_total_time为单结点训练时每个epoch的总时长
-sn_total_time =mean(sn_results["sn_total_time_list"])
+sn_total_time =mean(sn_results["sn_total_time_list"][:DRAW_EPOCH])
 
 # mn_cal_time为多结点训练时每个epoch的计算花费时长
 # mn_sync_time为多结点训练时每个epoch的梯度同步花费时长
-mn_cal_time = mean(mn_results["mn_cal_time_list"])
-mn_sync_time = mean(mn_results["mn_sync_time_list"])
+mn_cal_time = mean(mn_results["mn_cal_time_list"][:DRAW_EPOCH])
+mn_sync_time = mean(mn_results["mn_sync_time_list"][:DRAW_EPOCH])
 
 def draw_time():
     save_name = "TrainingTimeComparison.jpg"
@@ -208,8 +217,8 @@ def draw_sync_time(
     plt.clf()
 
 draw_sync_time(
-    epoch_list=mn_results["mn_epoch_list"],
-    mn_sync_time_list=mn_results["mn_sync_time_list"],
+    epoch_list=mn_results["mn_epoch_list"][:DRAW_EPOCH],
+    mn_sync_time_list=mn_results["mn_sync_time_list"][:DRAW_EPOCH],
     xlabel="Epoch",
     ylabel="SyncTime (Second)",
     title="SyncTime-Epoch",

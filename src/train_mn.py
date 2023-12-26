@@ -32,21 +32,10 @@ class Trainer:
         self.is_master = RANK == 0
         self.model = Model(hidden_size=hidden_size)
         self.model.load_state_dict(torch.load(INITIAL_MODEL_PATH))
-        self.optimizer = optim.AdamW(
-            self.model.parameters(), lr=lr_mn, weight_decay=weight_decay_mn)
-        weight_params, bias_params = [], []
-        for name, param in self.model.named_parameters():
-            if 'bias' in name:
-                bias_params.append(param)
-            else:
-                weight_params.append(param)
-        param_groups = [
-            {'params': weight_params, 'weight_decay': weight_decay_mn},
-            {'params': bias_params, 'weight_decay': 0.0}
-        ]
-        self.optimizer = optim.AdamW(param_groups, lr=lr_mn)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=lr_mn)
         self.scheduler = optim.lr_scheduler.StepLR(
-            self.optimizer, step_size=step_size_mn, gamma=gamma_mn)
+            self.optimizer, step_size=lr_step_size_mn, gamma=lr_gamma_mn)
+
         # 对训练数据进行分布式采样，让每个结点训练的数据不同
         trainset = self.communicator.sample_data(trainset)
         self.train_loader = DataLoader(
@@ -107,12 +96,11 @@ class Trainer:
 
             start_cal_time = time.time()
             self.optimizer.step()
-            self.scheduler.step()
             cal_time += time.time() - start_cal_time
 
             train_mse += loss.item()
             train_mae += self.cal_MAE(outputs, targets).item()
-
+        self.scheduler.step()
         avg_train_mse = train_mse / len(self.train_loader)
         avg_train_mae = train_mae / len(self.train_loader)
         return avg_train_mse, avg_train_mae, cal_time, sync_time
@@ -183,6 +171,13 @@ class Trainer:
             self.cal_time_list.append(cal_time)
             self.sync_time_list.append(sync_time)
             self.total_time_list.append(train_cost_time)
+
+            # 对于前10个epoch输出时间
+            if self.is_master and epoch <= 10:
+                message = (
+                    f"{epoch}th epoch costs: CalTime-{cal_time:.2f} SyncTime-{sync_time:.2f}"
+                )
+                self.out_message(message)
 
             if self.is_master:
                 test_mse, test_mae = self.test_epoch(epoch)
