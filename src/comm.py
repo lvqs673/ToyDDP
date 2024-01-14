@@ -61,6 +61,7 @@ class Communicator:
 
     def connect_to_right(self, port: int = PORT):
         print(f"--- Rank{self.rank} waiting for Rank{self.right_rank()} ---")
+        # 重复1000次申请连接，每隔0.1秒申请一次，如果100秒仍旧没有连接则放弃并抛出异常
         host = HOSTS[self.right_rank()]
         connected = False
         max_retries = 1000
@@ -158,9 +159,7 @@ class Communicator:
     # 同步的单位是buckets
     def allreduce(self, buckets: list[list[Tensor]]) -> list[list[Tensor]]:
         shapes_by_bucket = flatten(buckets)
-        self.buckets_by_part, pre_tensor_id = split_buckets(
-            buckets, num_parts=self.n_hosts
-        )
+        self.buckets_by_part, pre_tensor_id = split_buckets(buckets, num_parts=self.n_hosts)
 
         self.barrier()
         beg_send_part_id = self.rank
@@ -179,7 +178,6 @@ class Communicator:
                 buckets[i][j] = buckets[i][j] / self.n_hosts
 
         self.counter += 1
-
         return buckets
 
     # 实现对数据的分布式采样，返回值是当前Node的数据
