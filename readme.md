@@ -6,6 +6,7 @@
 
 
 **实验任务使用LSTM进行时序预测**
+- 血糖数据: https://cloud.tsinghua.edu.cn/d/dda68468cb6043edad6a/
 - 时序数据为100个糖尿病患者的血糖变化
 - *./data/blood_glucose*目录下有100位糖尿病患者的血糖数据，每个文件是一个患者的血糖数据
    - 每个文件中：第一列是血糖监测点编号，第二列是血糖浓度（单位mmol/L）
@@ -93,3 +94,15 @@
 - $H_0$: 00+10+20 &nbsp; 01+11+21 &nbsp; 02+12+22
 - $H_1$: 00+10+20 &nbsp; 01+11+21 &nbsp; 02+12+22
 - $H_2$: 00+10+20 &nbsp; 01+11+21 &nbsp; 02+12+22
+
+
+
+**实验过程**
+1. 确保各个结点之间可以无密码登录。
+2. 在各个结点之间创建一样的conda环境。
+3. 在*src/config.py*中设置*HOSTS*为分布式训练的结点*IP地址*，*USER*设置为登录的用户名，*PORT*设置为一个不会被占用的端口。
+4. 先运行一次*src/model.py*来创建一个初始模型，确保单结点和多结点训练前模型参数一致。
+5. 设置*src/comm_test.sh*中的*HOSTS*为各个结点的*IP地址*，*ACTIVATE_PATHS*为每个结点的激活conda环境的程序地址，执行该脚本测试分布式通信。
+6. 设置*src/train_mn.sh*中的*HOSTS*、*USER*、*PORT*和*ACTIVATE_PATHS*。执行该脚本启动分布式训练。*train_mn.log*文件记录训练过程，包括每个*epoch*的训练集*MSE*、*MAE*和测试集*MSE*、*MAE*。执行完后会将训练中的中间结果记录在*data/mn_results.json*中。*stdout_{RANK}_{IP}.txt*文件记录了每个结点上的输出和错误。
+7. 执行*src/train_sn.sh*启动单结点训练。*train_sn.log*文件记录训练过程，包括每个*epoch*的训练集*MSE*、*MAE*和测试集*MSE*、*MAE*。执行完后会将训练中的中间结果记录在*data/sn_results.json*中。
+8. 执行*src/draw.py*来绘制几个曲线。
