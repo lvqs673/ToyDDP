@@ -12,7 +12,7 @@ from utils import *
 
 
 """
-该模型是为了实现分布式通信
+该模块是为了实现分布式通信
 Communicator类在初始化时会构造环形网络,保持每个结点与右侧结点的连接
 
 allreduce的实现通过发送线程和接收线程实现而不是reducescatter+allgather
